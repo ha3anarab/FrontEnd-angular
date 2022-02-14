@@ -4,6 +4,7 @@ import {Country} from "../../common/country";
 import {FormshopService} from "../../services/formshop.service";
 import {State} from "../../common/state";
 import {ShopValidators} from "../../validators/shop-validators";
+import {CartService} from "../../services/cart.service";
 
 @Component({
   selector: 'app-checkout',
@@ -21,10 +22,13 @@ export class CheckoutComponent implements OnInit {
   shippingAddressStates: State[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private shopFormService: FormshopService) {
+              private shopFormService: FormshopService,
+              private cartService: CartService) {
   }
 
   ngOnInit(): void {
+    this.reviewCartDetails();
+
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: new FormControl('', [Validators.required, Validators.minLength(2), ShopValidators.notOnlyWhitespace]),
@@ -74,4 +78,15 @@ export class CheckoutComponent implements OnInit {
   get firstName() { return  this.checkoutFormGroup.get('customer.firstName'); }
   get lastName() { return this.checkoutFormGroup.get('customer.lastName'); }
   get email() { return this.checkoutFormGroup.get('customer.email'); }
+
+  private reviewCartDetails() {
+    // subscribe to cartService
+    this.cartService.totalQuantity.subscribe(
+      totalQuantity => this.totalQuantity = totalQuantity
+    );
+
+    this.cartService.totalPrice.subscribe(
+      totalPrice => this.totalPrice = totalPrice
+    );
+  }
 }
